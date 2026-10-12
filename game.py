@@ -2,8 +2,26 @@ from board import Board
 
 
 class Minesweeper:
+    DIFFICULTIES = {
+        "easy": (6, 6, 6),
+        "medium": (8, 8, 12),
+        "hard": (10, 10, 20),
+    }
+
     def __init__(self):
-        self.board = Board()
+        while True:
+            choice = input("Choose difficulty (Easy/Medium/Hard): ").strip().lower()
+
+            if choice in self.DIFFICULTIES:
+                rows, cols, mines = self.DIFFICULTIES[choice]
+                self.board = Board(rows=rows, cols=cols, mines=mines)
+                print(
+                    f"{choice.title()} mode: "
+                    f"{rows}x{cols} board with {mines} mines."
+                )
+                break
+
+            print("Invalid difficulty. Choose Easy, Medium, or Hard.")
 
     def display(self, reveal_mines=False):
         b = self.board
@@ -50,10 +68,20 @@ class Minesweeper:
                 self.board.toggle_flag((r, c))
                 continue
 
-            if self.board.reveal((r, c)):
+            pos = (r, c)
+
+            if pos in self.board.revealed:
+                print("Cell already revealed.")
+                continue
+
+            if self.board.reveal(pos):
                 self.display(reveal_mines=True)
                 print("BOOM! You hit a mine.")
                 return
+
+            if pos in self.board.revealed:
+                print("Cell revealed.")
+
             if self.board.won():
                 self.display()
                 print("You cleared the board!")
